@@ -1,0 +1,95 @@
+#+Title: Beyond Pandas's subplots and Seaborn's FacetGrid: using specplot to vizualize series and dataframes with multiple plotting functions
+
+* Video series
+Video I: review facetting tools for plotting dataframes
+- LO: plot histograms of all columns of a DataFrame on a grid with ~ncols~ columns using Pandas
+- LO: plot custom viz of all columns of a DataFrame on a grid with ~ncols~ columns using Seaborn.FacetGrid
+- LO: how to avoid memory errors when generating lots and lots of graphs
+
+Video II: introducing specplot
+- LO: provide 3 different examples of data viz where each column of a dataframe is plotted in multiple ways on a grid.
+- LO: use specplot to apply 3 different plotting function to a Pandas Series
+- LO: use specplot to apply 3 different plotting function to a Pandas DataFrame
+
+Video III: making your plots interactive
+- LO: turn a static Matplotlib figure into an interactive one via Plotly
+- LO: turn a static specplot figure into an interactive one
+- LO: ipywidgets for quick selection
+
+Video IV: specplot implementation
+- LO: use Matplotlib's GridSpec to create a figure containing 3 non-uniform subfigures displaying different views of one column of a DataFrame
+- LO: generalize the previous case by mapping the plotting function to all columns of a dataframe, controlling the number ~ncols~ of columns per row.
+- LO: describe the different between a uniform grid and a non-uniform grid
+- LO: provide the grid specification for a non-uniform grid using Plotly's specs syntax.
+
+* Introduction
+** Current state of the art
+subplots with seaborn or pandas are great but usually apply one
+plotting function to different groups or columns. Each plotting
+function operates on one Axes object. How about a plotting function
+that returns a subplots. How about apply multiple plotting
+functions? Why? To examine the same piece of data from different
+points of view.
+
+- Example:
+  one plot -> FacetGrid
+  manually: subplots. Can work accross rows?
+  1. What if I want to map accross both columns and rows? ~DataFrame.plot(subplots=True, layout=(-1, ncols))~
+  2. What if I want to do this with a custom plot? Must switch to seaborn... ~FacetGrid.map()~
+  3. What if I want non uniform subplots? For example XXX in matplotlib, XXX in pyplot??? XXX
+
+  Present
+  -------
+  - centered around a Matplotlib's Axes instance, typically called ax
+    #+BEGIN_SRC python
+    fig, ax = plt.subplots(1,1)
+    foo(ax=ax)
+     #+END_SRC
+  - can be used to plot similar looking plots
+#+BEGIN_SRC python
+    fig, (ax1, ax2) = plt.subplots(2,1)
+    foo(ax=ax1)  # left plot
+    foo(ax=ax2)  # right plot
+#+END_SRC
+  - generalizations:
+  + use Pandas with `subplots=True` to apply builtin plotting functions to all columns of a dataframe
+#+BEGIN_SRC python
+   df.plot(subplots=True)
+#+END_SRC
+  + seaborn's FacetGrid maps a plotting function over a grid of axes
+#+BEGIN_SRC python
+    g = FacetGrid(data=df, columns='gender', x='??', y='??')
+    g.map(foo)
+#+END_SRC
+
+  Future
+  ------
+  - how it works
+  map(foo, axes)
+  tools: matplotlib (subplots, plt.gca()), seaborn (FacetGrid.map), pandas (DataFrame.plot(ax)
+
+  This Talk
+  ---------
+  map(multifoo, ylst, gridspec)
+
+- Examples
+  + what is it?
+    - most plotting functions in Python operate on 1D data (typically taking two numpy arrays x,y). Facetting functionality apply the same plotting function to multiple columns (or groups) of a Pandas series. Currently no way to apply multiple functions to multiple columns.
+  + why is it useful? often want to look at the same data from different point of view at the same time, and look at multiple bits of similar data at the same time.
+      1. scatter plot (x=col, y=target) + histogram (numerical data)
+      2. violin plot + count plot for categorical data
+      3. time series, autocorrelation, psd (audio processing)
+      4. raw image, filter1, filter2, filter3 (image processing)
+      5. map data: (different zoom levels) house view, street view, neightbourhood view (or different overlays: map + satellite)
+      6. stock prices: price, log price, log difference, conditional variance / rolling standard deviation
+  + you may also have cases where you want to visualize 2 or more time series simultaneously in each subplot
+      7. finance: trading price and volume
+      8. science: temperature and pressure signals, and possibly a combination of the two
+- Learning outcomes:
+  + ability to combine a custom plotting function that uses subplots with ipywidgets to interactively explore a dataset one column at a time
+  + ability to combine a custom plotting function that uses gridspecs to generate reports
+- Examples
+- How it's done?
+    1. Subplots + IPywidgets: works perfectly for a single plot. Hard to generalize because can't combine matplotlib or plotly figures.
+    2. GridSpec: the right abstraction
+- Conclusions
